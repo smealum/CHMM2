@@ -57,8 +57,7 @@ int main(int argc, char **argv)
 	initCfgu();
 	httpcInit();
 	ptmInit();
-	hidInit(NULL);
-	irrstInit(NULL);
+	hidInit();
 	aptOpenSession();
 	Result ret=APT_SetAppCpuTimeLimit(NULL, 30);
 	aptCloseSession();
@@ -67,6 +66,8 @@ int main(int argc, char **argv)
 	u64 size;
 	u32 bytesRead;
 	int restore;
+
+	osSetSpeedupEnable(true);
 	
 	if (argc > 0) is3DSX = true;
 	else is3DSX = false;
@@ -155,17 +156,16 @@ int main(int argc, char **argv)
 			gfxSwapBuffers();
 		}
 		if (ftp_state) ftp_exit();
-		if (isCSND){
-			CSND_shutdown();
-			isCSND = false;
-		}
+		// if (isCSND){
+		// 	CSND_shutdown();
+		// 	isCSND = false;
+		// }
 		if (restore==2){
 			break;
 		}
 	}
 	if (!CIA_MODE) khaxExit();
 	fsExit();
-	irrstExit();
 	hidExit();
 	ptmExit();
 	hbExit();

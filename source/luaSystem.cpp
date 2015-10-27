@@ -67,7 +67,7 @@ static int lua_exit(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 0) return luaL_error(L, "wrong number of arguments");
-	if (isCSND) CSND_shutdown();
+	// if (isCSND) CSND_shutdown();
 	char string[20];
 	strcpy(string,"lpp_exit_0456432");
 	luaL_dostring(L, "collectgarbage()");
@@ -303,11 +303,11 @@ static int lua_getsize(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 1) return luaL_error(L, "wrong number of arguments");
-	Handle fileHandle = luaL_checknumber(L, 1);
+	Handle fileHandle = luaL_checkinteger(L, 1);
 	u64 size;
 	Result ret=FSFILE_GetSize(fileHandle, &size);
 	//if(ret) return luaL_error(L, "error getting size");
-	lua_pushnumber(L,size);
+	lua_pushinteger(L,size);
 	return 1;
 }
 
@@ -315,7 +315,7 @@ static int lua_closefile(lua_State *L)
 {
     int argc = lua_gettop(L);
     if ((argc != 1) && (argc != 2)) return luaL_error(L, "wrong number of arguments");
-	Handle fileHandle = luaL_checknumber(L, 1);
+	Handle fileHandle = luaL_checkinteger(L, 1);
 	Result ret=FSFILE_Close(fileHandle);
 	svcCloseHandle(fileHandle);
 	if (argc == 2) FSUSER_CloseArchive(NULL, &main_extdata_archive);
@@ -327,9 +327,9 @@ static int lua_readfile(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 3) return luaL_error(L, "wrong number of arguments");
-	Handle fileHandle = luaL_checknumber(L, 1);
-	u64 init = luaL_checknumber(L, 2);
-	u64 size = luaL_checknumber(L, 3);
+	Handle fileHandle = luaL_checkinteger(L, 1);
+	u64 init = luaL_checkinteger(L, 2);
+	u64 size = luaL_checkinteger(L, 3);
 	u32 bytesRead;
 	unsigned char *buffer = (unsigned char*)(malloc((size+1) * sizeof (char)));
 	Result ret=FSFILE_Read(fileHandle, &bytesRead, init, buffer, size);
@@ -345,10 +345,10 @@ static int lua_writefile(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 4) return luaL_error(L, "wrong number of arguments");
-	Handle fileHandle = luaL_checknumber(L, 1);
-	u64 init = luaL_checknumber(L, 2);
+	Handle fileHandle = luaL_checkinteger(L, 1);
+	u64 init = luaL_checkinteger(L, 2);
 	const char *text = luaL_checkstring(L, 3);
-	u64 size = luaL_checknumber(L, 4);
+	u64 size = luaL_checkinteger(L, 4);
 	u32 bytesWritten;
 	Result ret=FSFILE_Write(fileHandle, &bytesWritten, init, text, size, FS_WRITE_FLUSH);
 	//if(ret || size!=bytesWritten) return luaL_error(L, "error writing file");
@@ -965,22 +965,6 @@ static int lua_listExtdataDir(lua_State *L){
 	return 1;
 }
 
-// AM service extension
-static Handle amHandle = 0;
-
-Result AM_GetTitleProductCode(u8 mediatype, u64 titleid, char* product_code)
-{
-Result ret = 0;
-u32 *cmdbuf = getThreadCommandBuffer();
-cmdbuf[0] = 0x000500C0;
-cmdbuf[1] = mediatype;
-cmdbuf[2] = titleid & 0xffffffff;
-cmdbuf[3] = (titleid >> 32) & 0xffffffff;
-if((ret = svcSendSyncRequest(amHandle))!=0) return ret;
-sprintf(product_code,"%s",(char*)(&cmdbuf[2]));
-return (Result)cmdbuf[1];
-}
-
 static int lua_installCia(lua_State *L){
 	int argc = lua_gettop(L);
 	if (argc != 1) return luaL_error(L, "wrong number of arguments");
@@ -1045,7 +1029,7 @@ static int lua_listCia(lua_State *L){
 	u32 cia_nums;
 	AM_GetTitleCount(mediatype_SDMC, &cia_nums);
 	TitleId* TitleIDs = (TitleId*)malloc(cia_nums * sizeof(TitleId));
-	AM_GetTitleList(mediatype_SDMC,cia_nums,TitleIDs);
+	AM_GetTitleIdList(mediatype_SDMC,cia_nums,(u64*)TitleIDs);
 	u32 i = 1;
 	lua_newtable(L);
 	while (i <= cia_nums){
@@ -1083,7 +1067,7 @@ static int lua_listCia(lua_State *L){
 	u32 z = 1;
 	AM_GetTitleCount(mediatype_NAND, &cia_nums);
 	TitleIDs = (TitleId*)malloc(cia_nums * sizeof(TitleId));
-	AM_GetTitleList(mediatype_NAND,cia_nums,TitleIDs);
+	AM_GetTitleIdList(mediatype_NAND,cia_nums,(u64*)TitleIDs);
 	while (z <= cia_nums){
 		lua_pushinteger(L, i);
 		lua_newtable(L);
@@ -1133,7 +1117,7 @@ static int lua_uninstallCia(lua_State *L){
 	u32 cia_nums;
 	AM_GetTitleCount(media, &cia_nums);
 	TitleId* TitleIDs = (TitleId*)malloc(cia_nums * sizeof(TitleId));
-	AM_GetTitleList(media,cia_nums,TitleIDs);
+	AM_GetTitleIdList(media,cia_nums,(u64*)TitleIDs);
 	u64 id = TitleIDs[delete_id-1].uniqueid | ((u64)TitleIDs[delete_id-1].category << 32) | ((u64)TitleIDs[delete_id-1].platform << 48);
 	AM_DeleteAppTitle(media, id);
 	AM_DeleteTitle(media, id);
