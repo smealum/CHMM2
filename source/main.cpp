@@ -156,10 +156,10 @@ int main(int argc, char **argv)
 			gfxSwapBuffers();
 		}
 		if (ftp_state) ftp_exit();
-		// if (isCSND){
-		// 	CSND_shutdown();
-		// 	isCSND = false;
-		// }
+		if (isCSND){
+			csndExit();
+			isCSND = false;
+		}
 		if (restore==2){
 			break;
 		}

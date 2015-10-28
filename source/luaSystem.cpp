@@ -67,7 +67,7 @@ static int lua_exit(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 0) return luaL_error(L, "wrong number of arguments");
-	// if (isCSND) CSND_shutdown();
+	if (isCSND) csndExit();
 	char string[20];
 	strcpy(string,"lpp_exit_0456432");
 	luaL_dostring(L, "collectgarbage()");

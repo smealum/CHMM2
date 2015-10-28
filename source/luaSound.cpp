@@ -123,9 +123,9 @@ void streamOGG(void* arg){ //TODO: Solve looping sound issues
 					src->isPlaying = false;
 					src->tick = (osGetTime()-src->tick);
 					src->moltiplier = 1;
-					// CSND_setchannel_playbackstate(src->ch, 0);
-					// if (src->audiobuf2 != NULL) CSND_setchannel_playbackstate(src->ch2, 0);
-					// CSND_sharedmemtype0_cmdupdatestate(0);
+					CSND_SetPlayState(src->ch, 0);
+					if (src->audiobuf2 != NULL) CSND_SetPlayState(src->ch2, 0);
+					CSND_UpdateInfo(0);
 					ov_raw_seek((OggVorbis_File*)src->sourceFile,0);
 					if (src->audiobuf2 == NULL){ //Mono file
 					int i = 0;
@@ -257,9 +257,9 @@ void streamWAV(void* arg){
 					src->isPlaying = false;
 					src->tick = (osGetTime()-src->tick);
 					src->moltiplier = 1;
-					// CSND_setchannel_playbackstate(src->ch, 0);
-					// if (src->audiobuf2 != NULL) CSND_setchannel_playbackstate(src->ch2, 0);
-					// 	CSND_sharedmemtype0_cmdupdatestate(0);
+					CSND_SetPlayState(src->ch, 0);
+					if (src->audiobuf2 != NULL) CSND_SetPlayState(src->ch2, 0);
+					CSND_UpdateInfo(0);
 				}
 				if (src->audiobuf2 == NULL){
 					FSFILE_Read(src->sourceFile, &bytesRead, src->startRead, src->audiobuf, src->mem_size);
@@ -986,10 +986,10 @@ static int lua_soundinit(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 0) return luaL_error(L, "wrong number of arguments");
-	// if (!isCSND){
-	// 	CSND_initialize(NULL);
-	// 	isCSND = true;
-	// }
+	if (!isCSND){
+		csndInit();
+		isCSND = true;
+	}
 	return 0;
 }
 
@@ -1024,14 +1024,14 @@ static int lua_playWav(lua_State *L)
 		src->thread = threadStack;
 		svcSignalEvent(updateStream);
 		Result ret = svcCreateThread(&streamThread, streamFunction, (u32)src, &threadStack[2048], 0x18, 1);
-		// My_CSND_playsound(ch, CSND_LOOP_ENABLE, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), src->mem_size, 0xFFFF, 0xFFFF);
+		My_CSND_playsound(ch, CSND_LOOPMODE_NORMAL, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), src->mem_size, 0xFFFF, 0xFFFF);
 		}else{
-		// My_CSND_playsound(ch, loop, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), src->size, 0xFFFF, 0xFFFF);
+		My_CSND_playsound(ch, loop, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), src->size, 0xFFFF, 0xFFFF);
 		}
 		src->ch = ch;
 		src->tick = osGetTime();
-		// CSND_setchannel_playbackstate(ch, 1);
-		// CSND_sharedmemtype0_cmdupdatestate(0);
+		CSND_SetPlayState(ch, 1);
+		CSND_UpdateInfo(0);
 	}else{
 		if (src->mem_size > 0){
 		if (loop == 0) src->streamLoop = false;
@@ -1041,18 +1041,18 @@ static int lua_playWav(lua_State *L)
 		src->thread = threadStack;
 		svcSignalEvent(updateStream);
 		Result ret = svcCreateThread(&streamThread, streamFunction, (u32)src, &threadStack[2048], 0x18, 1);
-		// My_CSND_playsound(ch, CSND_LOOP_ENABLE, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), (src->mem_size)/2, 0xFFFF, 0);
-		// My_CSND_playsound(ch2, CSND_LOOP_ENABLE, src->encoding, src->samplerate, (u32*)src->audiobuf2, (u32*)(src->audiobuf2), (src->mem_size)/2, 0, 0xFFFF);
+		My_CSND_playsound(ch, CSND_LOOPMODE_NORMAL, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), (src->mem_size)/2, 0xFFFF, 0);
+		My_CSND_playsound(ch2, CSND_LOOPMODE_NORMAL, src->encoding, src->samplerate, (u32*)src->audiobuf2, (u32*)(src->audiobuf2), (src->mem_size)/2, 0, 0xFFFF);
 		}else{
-		// My_CSND_playsound(ch, loop, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), src->size, 0xFFFF, 0);
-		// My_CSND_playsound(ch2, loop, src->encoding, src->samplerate, (u32*)src->audiobuf2, (u32*)(src->audiobuf2), src->size, 0, 0xFFFF);
+		My_CSND_playsound(ch, loop, src->encoding, src->samplerate, (u32*)src->audiobuf, (u32*)(src->audiobuf), src->size, 0xFFFF, 0);
+		My_CSND_playsound(ch2, loop, src->encoding, src->samplerate, (u32*)src->audiobuf2, (u32*)(src->audiobuf2), src->size, 0, 0xFFFF);
 		}
 		src->ch = ch;
 		src->ch2 = ch2;
 		src->tick = osGetTime();
-		// CSND_setchannel_playbackstate(ch, 1);
-		// CSND_setchannel_playbackstate(ch2, 1);
-		// CSND_sharedmemtype0_cmdupdatestate(0);
+		CSND_SetPlayState(ch, 1);
+		CSND_SetPlayState(ch2, 1);
+		CSND_UpdateInfo(0);
 	}
 	if (non_native_encode){
 		src->encoding = tmp_encode;
@@ -1099,9 +1099,9 @@ static int lua_pause(lua_State *L)
 	#ifndef SKIP_ERROR_HANDLING
 		if (src->magic != 0x4C534E44) return luaL_error(L, "attempt to access wrong memory block type");
 	#endif
-	// CSND_setchannel_playbackstate(src->ch, 0);
-	// if (src->audiobuf2 != NULL) CSND_setchannel_playbackstate(src->ch2, 0);
-	// CSND_sharedmemtype0_cmdupdatestate(0);
+	CSND_SetPlayState(src->ch, 0);
+	if (src->audiobuf2 != NULL) CSND_SetPlayState(src->ch2, 0);
+	CSND_UpdateInfo(0);
 	src->isPlaying = false;
 	src->tick = (osGetTime()-src->tick);
 	return 0;
@@ -1115,9 +1115,9 @@ static int lua_resume(lua_State *L)
 	#ifndef SKIP_ERROR_HANDLING
 		if (src->magic != 0x4C534E44) return luaL_error(L, "attempt to access wrong memory block type");
 	#endif
-	// CSND_setchannel_playbackstate(src->ch, 1);
-	// if (src->audiobuf2 != NULL) CSND_setchannel_playbackstate(src->ch2, 1);
-	// CSND_sharedmemtype0_cmdupdatestate(0);
+	CSND_SetPlayState(src->ch, 1);
+	if (src->audiobuf2 != NULL) CSND_SetPlayState(src->ch2, 1);
+	CSND_UpdateInfo(0);
 	src->isPlaying = true;
 	src->tick = (osGetTime()-src->tick);
 	return 0;
@@ -1138,10 +1138,10 @@ static int lua_soundend(lua_State *L)
 {
     int argc = lua_gettop(L);
     if (argc != 0) return luaL_error(L, "wrong number of arguments");
-	// if (isCSND){
-	// 	CSND_shutdown();
-	// 	isCSND = false;
-	// }
+	if (isCSND){
+		csndExit();
+		isCSND = false;
+	}
 	return 0;
 }
 

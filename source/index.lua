@@ -16,6 +16,37 @@ if System.doesFileExist(System.currentDirectory().."settings.cfg") then
 else
 	col_idx = 1
 end
+if System.checkBuild() == 2 then -- Patch to disable broken socketing features on NH2
+	old_funcs = {["init"] = Socket.init,
+				 ["term"] = Socket.term,
+				 ["createServerSocket"] = Socket.createServerSocket,
+				 ["accept"] = Socket.accept,
+				 ["receive"] = Socket.receive,
+				 ["send"] = Socket.send,
+				 ["close"] = Socket.close,
+				}
+	function Socket.init()
+		return nil
+	end
+	function Socket.term()
+		return nil
+	end
+	function Socket.createServerSocket(stub)
+		return nil
+	end
+	function Socket.accept(stub)
+		return nil
+	end
+	function Socket.receive(stub, stub)
+		return nil
+	end
+	function Socket.send(stub)
+		return nil
+	end
+	function Socket.close(stub)
+		return nil
+	end
+end
 konami_code = {KEY_DUP, KEY_DUP, KEY_DDOWN, KEY_DDOWN, KEY_DLEFT, KEY_DRIGHT, KEY_DLEFT, KEY_DRIGHT, KEY_B, KEY_A}
 konami_idx = 1
 opt_idx = 1
