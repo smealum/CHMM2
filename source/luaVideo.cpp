@@ -1260,13 +1260,13 @@ int argc = lua_gettop(L);
 	#endif
 	src->isPlaying = false;
 	src->currentFrame = 0;
-	// if (src->samplerate != 0 && src->audio_size != 0){
+	if (src->samplerate != 0 && src->audio_size != 0){
 	CSND_SetPlayState(src->ch1, 0);
-	// if (src->audiotype == 2){
+	if (src->audiotype == 2){
 	CSND_SetPlayState(src->ch2, 0);
-	// }
+	}
 	CSND_UpdateInfo(0);
-	// }
+	}
 	return 0;
 }
 
@@ -1279,13 +1279,13 @@ int argc = lua_gettop(L);
 	#endif
 	src->isPlaying = false;
 	src->currentFrame = 0;
-	// if (src->samplerate != 0 && src->audio_size != 0){
+	if (src->samplerate != 0 && src->audio_size != 0){
 	CSND_SetPlayState(src->ch1, 0);
-	// if (src->audiotype == 2){
+	if (src->audiotype == 2){
 	CSND_SetPlayState(src->ch2, 0);
-	// }
+	}
 	CSND_UpdateInfo(0);
-	// }
+	}
 	return 0;
 }
 
@@ -1298,13 +1298,13 @@ int argc = lua_gettop(L);
 	#endif
 	src->isPlaying = false;
 	src->tick = (osGetTime() - src->tick);
-	// if (src->samplerate != 0 && src->audio_size != 0){
+	if (src->samplerate != 0 && src->audio_size != 0){
 	CSND_SetPlayState(src->ch1, 0);
-	// if (src->audiotype == 2){
+	if (src->audiotype == 2){
 	CSND_SetPlayState(src->ch2, 0);
-	// }
+	}
 	CSND_UpdateInfo(0);
-	// }
+	}
 	return 0;
 }
 
@@ -1317,13 +1317,13 @@ int argc = lua_gettop(L);
 	#endif
 	src->isPlaying = false;
 	src->tick = (osGetTime() - src->tick);
-	// if (src->samplerate != 0 && src->audio_size != 0){
+	if (src->samplerate != 0 && src->audio_size != 0){
 	CSND_SetPlayState(src->ch1, 0);
-	// if (src->audiotype == 2){
+	if (src->audiotype == 2){
 	CSND_SetPlayState(src->ch2, 0);
-	// }
+	}
 	CSND_UpdateInfo(0);
-	// }
+	}
 	return 0;
 }
 
@@ -1336,13 +1336,13 @@ int argc = lua_gettop(L);
 	#endif
 	src->isPlaying = true;
 	src->tick = (osGetTime() - src->tick);
-	// if (src->samplerate != 0 && src->audio_size != 0){
+	if (src->samplerate != 0 && src->audio_size != 0){
 	CSND_SetPlayState(src->ch1, 1);
-	// if (src->audiotype == 2){
+	if (src->audiotype == 2){
 	CSND_SetPlayState(src->ch2, 1);
-	// }
+	}
 	CSND_UpdateInfo(0);
-	// }
+	}
 	return 0;
 }
 
@@ -1355,13 +1355,13 @@ int argc = lua_gettop(L);
 	#endif
 	src->isPlaying = true;
 	src->tick = (osGetTime() - src->tick);
-	// if (src->samplerate != 0 && src->audio_size != 0){
+	if (src->samplerate != 0 && src->audio_size != 0){
 	CSND_SetPlayState(src->ch1, 1);
-	// if (src->audiotype == 2){
+	if (src->audiotype == 2){
 	CSND_SetPlayState(src->ch2, 1);
-	// }
+	}
 	CSND_UpdateInfo(0);
-	// }
+	}
 	return 0;
 }
 
