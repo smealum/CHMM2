@@ -7,9 +7,14 @@
 static Handle CFGU_handle = 0;
 
 Result initCfgu()
-{
-	return srvGetServiceHandle(&CFGU_handle, "cfg:u");
-}
+ {
+	// cfg:i has the most commands, then cfg:s, then cfg:u
+	Result ret = srvGetServiceHandle(&CFGU_handle, "cfg:i");
+	if(ret) ret = srvGetServiceHandle(&CFGU_handle, "cfg:s");
+	if(ret) ret = srvGetServiceHandle(&CFGU_handle, "cfg:u");
+	
+	return ret;
+ }
 
 Result exitCfgu()
 {
@@ -38,7 +43,7 @@ Result CFGU_GenHashConsoleUnique(u32 appIDSalt, u64* hash)
 	Result ret = 0;
 	u32 *cmdbuf = getThreadCommandBuffer();
 
-	cmdbuf[0] = 0x00030000;
+	cmdbuf[0] = 0x00030040;
 	cmdbuf[1] = appIDSalt;
 
 	if((ret = svcSendSyncRequest(CFGU_handle))!=0)return ret;

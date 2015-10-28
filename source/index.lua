@@ -112,7 +112,7 @@ function PrintOptionsVoices()
 	end
 end
 konami_todo = true
-version = "2.1 BETA"
+version = "2.1.2"
 bgm_opening = false
 Graphics.init()
 shuffle_themes = {}
